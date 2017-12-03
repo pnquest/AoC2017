@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Common;
 
 namespace Day2
 {
@@ -9,35 +10,32 @@ namespace Day2
     {
         static void Main(string[] args)
         {
-            using (StreamReader r =
-                new StreamReader(new FileStream("./input.txt", FileMode.Open, FileAccess.Read, FileShare.Read)))
+            int checksum = 0;
+
+            foreach (string line in FileIterator.Create("./input.txt"))
             {
-                int checksum = 0;
-                while (!r.EndOfStream)
+                int[] values = line.Split('\t', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse)
+                    .ToArray();
+
+                for (int i = 0; i < values.Length; i++)
                 {
-                    string line = r.ReadLine();
-                    int[] values = line.Split('\t', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse)
-                        .ToArray();
+                    List<int> temp = new List<int>(values);
+                    temp.RemoveAt(i);
+                    List<int> mods = temp.Select(v => values[i] % v).ToList();
+                    int idx = mods.IndexOf(0);
 
-                    for (int i = 0; i < values.Length; i++)
+                    if (idx >= 0)
                     {
-                        List<int> temp = new List<int>(values);
-                        temp.RemoveAt(i);
-                        List<int> mods = temp.Select(v => values[i] % v).ToList();
-                        int idx = mods.IndexOf(0);
-
-                        if (idx >= 0)
-                        {
-                            int otherNumber = temp[idx];
-                            checksum += values[i] / otherNumber;
-                            break;
-                        }
+                        int otherNumber = temp[idx];
+                        checksum += values[i] / otherNumber;
+                        break;
                     }
                 }
-
-                Console.WriteLine($"The checksum is {checksum}");
-                Console.ReadKey(true);
             }
+
+
+            Console.WriteLine($"The checksum is {checksum}");
+            Console.ReadKey(true);
         }
     }
 }
