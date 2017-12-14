@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Common;
 
@@ -10,15 +11,90 @@ namespace Day14
         private const string input = "uugsqrei";
         static void Main(string[] args)
         {
-            List<int> bits = new List<int>();
+            int[,] value = new int[128,128];
             for (int i = 0; i < 128; i++)
             {
                 string hash = KnotHasher.ComputeKnotHash($"{input}-{i}");
                 int[] toBits = ConvertToBits(hash);
-                bits.AddRange(toBits);
-                Console.WriteLine(string.Join(" ", toBits));
+
+                for (int j = 0; j < toBits.Length; j++)
+                {
+                    value[j, i] = toBits[j];
+                }
             }
-            Console.WriteLine($"There are {bits.Count(b => b == 1)} used squares");
+
+            int groupCounter = 0;
+            HashSet<Point> usedPoints = new HashSet<Point>();
+
+            for (int y = 0; y < 128; y++)
+            {
+                for (int x = 0; x < 128; x++)
+                {
+                    Point item = new Point(x, y);
+                    if (value[x, y] == 1 && !usedPoints.Contains(item))
+                    {
+                        groupCounter++;
+                        usedPoints.Add(item);
+
+                        Stack<Point> pointsToCheck = new Stack<Point>();
+                        pointsToCheck.Push(item);
+
+                        while (pointsToCheck.Any())
+                        {
+                            Point pt = pointsToCheck.Pop();
+
+                            if (pt.X < 127)
+                            {
+                                Point ptn = new Point(pt.X + 1, pt.Y);
+                                if (value[pt.X + 1, pt.Y] == 1 && !usedPoints.Contains(ptn))
+                                {
+                                    
+                                    usedPoints.Add(ptn);
+                                    pointsToCheck.Push(ptn);
+                                }
+                            }
+
+                            if (pt.Y < 127)
+                            {
+                                Point ptn = new Point(pt.X, pt.Y + 1);
+
+                                if (value[pt.X, pt.Y + 1] == 1 && !usedPoints.Contains(ptn))
+                                {
+                                    usedPoints.Add(ptn);
+                                    pointsToCheck.Push(ptn);
+                                }
+                            }
+
+                            if (pt.X > 0)
+                            {
+                                Point ptn = new Point(pt.X - 1, pt.Y);
+
+                                if (value[pt.X - 1, pt.Y] == 1 && !usedPoints.Contains(ptn))
+                                {
+
+                                    usedPoints.Add(ptn);
+                                    pointsToCheck.Push(ptn);
+                                }
+
+                            }
+
+                            if (pt.Y > 0)
+                            {
+                                Point ptn = new Point(pt.X, pt.Y - 1);
+
+                                if (value[pt.X, pt.Y - 1] == 1 && !usedPoints.Contains(ptn))
+                                {
+                                    usedPoints.Add(ptn);
+                                    pointsToCheck.Push(ptn);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            Console.WriteLine($"There are {groupCounter} groups");
             Console.ReadKey(true);
         }
 
