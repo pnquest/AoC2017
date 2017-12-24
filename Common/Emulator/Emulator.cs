@@ -3,12 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Day18
+namespace Common.Emulator
 {
     public class Emulator
     {
-        public long LastPlayed { get; private set; }
-        public long LastRecovered { get; private set; }
+        public Dictionary<string, int> DebugCounts { get; } = new Dictionary<string, int>();
         public ConcurrentQueue<long> SendQueue { get; } = new ConcurrentQueue<long>();
         public ConcurrentQueue<long> ReceiveQueue { get; set; }
         public bool Terminated { get; private set; }
@@ -25,12 +24,29 @@ namespace Day18
             _programId = programId;
         }
 
+        public Emulator(Dictionary<string, long> registers)
+        {
+            _registers = registers;
+        }
+
+        public long GetRegisterValue(string reg)
+        {
+            return _registers[reg];
+        }
+
         public async Task NextInst()
         {
             try
             {
                 Console.WriteLine($"program {_programId} running {StackPointer}");
-                await _instructions[StackPointer].Execute(ReceiveQueue, SendQueue, _registers).ConfigureAwait(false);
+                IInstruction instruction = _instructions[StackPointer];
+
+                if (!DebugCounts.ContainsKey(instruction.GetType().Name))
+                {
+                    DebugCounts.Add(instruction.GetType().Name, 0);
+                }
+                DebugCounts[instruction.GetType().Name]++;
+                await instruction.Execute(ReceiveQueue, SendQueue, _registers).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -68,7 +84,15 @@ namespace Day18
             }
             else if (inst.StartsWith("jgz"))
             {
-                _instructions.Add(new JumpInstruction(instParts[1].Trim(), instParts[2].Trim(), this));
+                _instructions.Add(new JumpGZInstruction(instParts[1].Trim(), instParts[2].Trim(), this));
+            }
+            else if (inst.StartsWith("sub"))
+            {
+                _instructions.Add(new SubInstruction(instParts[1].Trim(), instParts[2].Trim(), this));
+            }
+            else if (inst.StartsWith("jnz"))
+            {
+                _instructions.Add(new JumpNZInstruction(instParts[1].Trim(), instParts[2].Trim(), this));
             }
             else
             {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Day18
+namespace Common.Emulator
 {
     public class SoundInstruction : IInstruction
     {

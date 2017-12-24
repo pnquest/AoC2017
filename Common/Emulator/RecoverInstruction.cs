@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Day18
+namespace Common.Emulator
 {
     public class RecoverInstruction : IInstruction
     {
@@ -18,7 +17,7 @@ namespace Day18
 
         public Task<bool> Execute(ConcurrentQueue<long> incoming,  ConcurrentQueue<long> outgoing, Dictionary<string, long> registers)
         {
-            return Task.Run(async () =>
+            return Task.Run<bool>(async () =>
             {
                 int count = 0;
                 long res = 0;

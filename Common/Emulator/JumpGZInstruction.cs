@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Day18
+namespace Common.Emulator
 {
-    public class JumpInstruction : IInstruction
+    public class JumpGZInstruction : IInstruction
     {
         public string Value { get; }
         public string Offset { get; }
 
-        public JumpInstruction(string value, string offset, Emulator parent)
+        public JumpGZInstruction(string value, string offset, Emulator parent)
         {
             Value = value;
             Offset = offset;

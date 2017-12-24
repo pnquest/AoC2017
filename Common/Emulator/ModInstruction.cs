@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Day18
+namespace Common.Emulator
 {
-    public class SetInstruction : IInstruction
+    public class ModInstruction : IInstruction
     {
         public string Register { get; }
         public string Value { get; }
 
-        public SetInstruction(string register, string value, Emulator parent)
+        public ModInstruction(string register, string value, Emulator parent)
         {
             Register = register;
             Value = value;
@@ -25,7 +25,7 @@ namespace Day18
 
             if (long.TryParse(Value, out long val))
             {
-                registers[Register] = val;
+                registers[Register] %= val;
             }
             else
             {
@@ -33,12 +33,12 @@ namespace Day18
                 {
                     registers.Add(Value, 0);
                 }
+
                 long regVal = registers[Value];
-                registers[Register] = regVal;
+                registers[Register] %= regVal;
             }
 
             Parent.StackPointer++;
-
             return Task.FromResult(false);
         }
 
